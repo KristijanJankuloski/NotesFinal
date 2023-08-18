@@ -1,6 +1,8 @@
-﻿using NotesFinal.DataAccess.Repositories;
+﻿using Microsoft.Extensions.Configuration;
+using NotesFinal.DataAccess.Repositories;
 using NotesFinal.Domain.Models;
 using NotesFinal.DTOs.UserDTOs;
+using NotesFinal.Mappers;
 using NotesFinal.Services.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,9 +12,22 @@ namespace NotesFinal.Services.Implementations
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
+        private readonly IConfiguration _config;
+        public UserService(IUserRepository userRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _config = configuration;
+        }
+
+        public async Task<UserShortDto> LoginUser(UserLoginDto dto)
+        {
+            User user = await _userRepository.GetByUsernameAsync(dto.Username);
+            if (user == null)
+                return null;
+            if (!IsPasswordValid(dto.Password, user.PasswordHash, user.PasswordSalt))
+                return null;
+
+            return user.ToUserShortDto();
         }
 
         public async Task RegisterUser(UserRegisterDto dto)
@@ -42,8 +57,8 @@ namespace NotesFinal.Services.Implementations
         {
             using (var hmac = new HMACSHA512(passwordSalt))
             {
-                var computedHah = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return computedHah == passwordHash;
+                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return computedHash.SequenceEqual(passwordHash);
             }
         }
     }

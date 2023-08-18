@@ -1,10 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using NotesFinal.DataAccess;
 using NotesFinal.DataAccess.Repositories;
 using NotesFinal.DataAccess.Repositories.Implementations;
 using NotesFinal.Services.Implementations;
 using NotesFinal.Services.Interfaces;
+using System.Text;
 
 namespace NotesFinal.Helpers
 {
@@ -25,6 +29,23 @@ namespace NotesFinal.Helpers
         {
             services.AddScoped<INoteService, NoteService>();
             services.AddScoped<IUserService, UserService>();
+        }
+
+        public static void ConfigureJwt(this IServiceCollection services, ConfigurationManager configuration)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                };
+            });
         }
     }
 }

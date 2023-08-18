@@ -1,4 +1,5 @@
-﻿using NotesFinal.DTOs.UserDTOs;
+﻿using NotesFinal.Domain.Models;
+using NotesFinal.DTOs.UserDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace NotesFinal.Services.Interfaces
     public interface IUserService
     {
         Task RegisterUser(UserRegisterDto dto);
+        Task<UserShortDto> LoginUser(UserLoginDto dto);
     }
 }
