@@ -25,6 +25,11 @@ namespace NotesFinal.DataAccess.Repositories.Implementations
             return await _context.Notes.ToListAsync();
         }
 
+        public async Task<List<Note>> GetAllByUserId(int userId)
+        {
+            return await _context.Notes.Where(x => x.UserId == userId).ToListAsync();
+        }
+
         public async Task<Note> GetByIdAsync(int id)
         {
             return await _context.Notes

@@ -11,6 +11,6 @@ namespace NotesFinal.Services.Interfaces
     public interface IUserService
     {
         Task RegisterUser(UserRegisterDto dto);
-        Task<UserShortDto> LoginUser(UserLoginDto dto);
+        Task<UserTokenDto> LoginUser(UserLoginDto dto);
     }
 }

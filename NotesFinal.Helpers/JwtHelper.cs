@@ -9,7 +9,7 @@ namespace NotesFinal.Helpers
 {
     public static class JwtHelper
     {
-        public static string GenerateToken(UserShortDto user, IConfiguration configuration)
+        public static string GenerateToken(UserTokenDto user, IConfiguration configuration)
         {
             SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
             SigningCredentials credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -19,6 +19,7 @@ namespace NotesFinal.Helpers
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
                 new Claim(ClaimTypes.GivenName, user.FirstName),
                 new Claim(ClaimTypes.Surname, user.LastName),
+                new Claim(ClaimTypes.Sid, user.Id.ToString()),
             };
 
             JwtSecurityToken token = new JwtSecurityToken(
@@ -31,7 +32,7 @@ namespace NotesFinal.Helpers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public static string GenerateRefreshToken(UserShortDto user, IConfiguration configuration)
+        public static string GenerateRefreshToken(UserTokenDto user, IConfiguration configuration)
         {
             SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
             SigningCredentials credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -41,6 +42,7 @@ namespace NotesFinal.Helpers
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
                 new Claim(ClaimTypes.GivenName, user.FirstName),
                 new Claim(ClaimTypes.Surname, user.LastName),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
 
             JwtSecurityToken token = new JwtSecurityToken(
@@ -51,6 +53,17 @@ namespace NotesFinal.Helpers
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public static UserTokenDto GetCurrentUser(ClaimsPrincipal user)
+        {
+            return new UserTokenDto
+            {
+                Id = int.Parse(user.FindFirst(ClaimTypes.Sid)?.Value),
+                Username = user.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                FirstName = user.FindFirst(ClaimTypes.GivenName)?.Value,
+                LastName = user.FindFirst(ClaimTypes.Surname)?.Value
+            };
         }
     }
 }

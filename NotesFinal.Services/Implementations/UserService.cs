@@ -19,7 +19,7 @@ namespace NotesFinal.Services.Implementations
             _config = configuration;
         }
 
-        public async Task<UserShortDto> LoginUser(UserLoginDto dto)
+        public async Task<UserTokenDto> LoginUser(UserLoginDto dto)
         {
             User user = await _userRepository.GetByUsernameAsync(dto.Username);
             if (user == null)
@@ -27,7 +27,7 @@ namespace NotesFinal.Services.Implementations
             if (!IsPasswordValid(dto.Password, user.PasswordHash, user.PasswordSalt))
                 return null;
 
-            return user.ToUserShortDto();
+            return user.ToUserTokenDto();
         }
 
         public async Task RegisterUser(UserRegisterDto dto)

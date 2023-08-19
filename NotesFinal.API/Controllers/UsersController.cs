@@ -24,7 +24,7 @@ namespace NotesFinal.API.Controllers
         {
             try
             {
-                UserShortDto user = await _userService.LoginUser(dto);
+                UserTokenDto user = await _userService.LoginUser(dto);
                 if (user == null)
                     return BadRequest("Bad credentials");
                 UserLoginResponseDto response = new UserLoginResponseDto
