@@ -19,6 +19,25 @@ namespace NotesFinal.Services.Implementations
             _config = configuration;
         }
 
+        public async Task<bool> CheckLastToken(int userId, string token)
+        {
+            User user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
+            if (user.LastUsedToken != token)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public async Task DeleteUserById(int userId)
+        {
+            await _userRepository.DeleteByIdAsync(userId);
+        }
+
         public async Task<UserTokenDto> LoginUser(UserLoginDto dto)
         {
             User user = await _userRepository.GetByUsernameAsync(dto.Username);
@@ -42,6 +61,13 @@ namespace NotesFinal.Services.Implementations
             user.PasswordHash = hash;
             user.PasswordSalt = salt;
             await _userRepository.InsertAsync(user);
+        }
+
+        public async Task SaveToken(int userId, string token)
+        {
+            User user = await _userRepository.GetByIdAsync(userId);
+            user.LastUsedToken = token;
+            await _userRepository.UpdateAsync(user);
         }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)

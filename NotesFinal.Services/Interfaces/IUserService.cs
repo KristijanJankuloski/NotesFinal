@@ -12,5 +12,8 @@ namespace NotesFinal.Services.Interfaces
     {
         Task RegisterUser(UserRegisterDto dto);
         Task<UserTokenDto> LoginUser(UserLoginDto dto);
+        Task SaveToken(int userId, string token);
+        Task<bool> CheckLastToken(int userId, string token);
+        Task DeleteUserById(int userId);
     }
 }

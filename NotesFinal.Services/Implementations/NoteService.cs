@@ -41,6 +41,8 @@ namespace NotesFinal.Services.Implementations
         public async Task<NoteDto> GetByIdAsync(int id, int userId)
         {
             Note note = await _noteRepository.GetByIdAsync(id);
+            if (note == null)
+                return null;
             if (note.UserId != userId)
             {
                 return null;

@@ -35,6 +35,7 @@ namespace NotesFinal.API.Controllers
                 };
                 response.Token = JwtHelper.GenerateToken(user, _configuration);
                 response.RefreshToken = JwtHelper.GenerateRefreshToken(user, _configuration);
+                await _userService.SaveToken(user.Id, response.Token);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -44,13 +45,57 @@ namespace NotesFinal.API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("register")]
+        [HttpPost]
         public async Task<IActionResult> Register(UserRegisterDto dto)
         {
             try
             {
                 await _userService.RegisterUser(dto);
-                return Ok();
+                return Ok("User created");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("refresh")]
+        [Authorize]
+        public async Task<ActionResult<UserLoginResponseDto>> RefreshToken(TokenRefresh old)
+        {
+            try
+            {
+                var user = JwtHelper.GetCurrentUser(this.HttpContext.User);
+                UserLoginResponseDto dto = new UserLoginResponseDto
+                {
+                    Username = user.Username,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                };
+                if(!await _userService.CheckLastToken(user.Id, old.Token))
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized, "Token invalid");
+                }
+                dto.Token = JwtHelper.GenerateToken(user, _configuration);
+                dto.RefreshToken = JwtHelper.GenerateRefreshToken(user, _configuration);
+                await _userService.SaveToken(user.Id, dto.Token);
+                return Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeleteUser()
+        {
+            try
+            {
+                var currnetUser = JwtHelper.GetCurrentUser(this.HttpContext.User);
+                await _userService.DeleteUserById(currnetUser.Id);
+                return StatusCode(StatusCodes.Status204NoContent);
             }
             catch (Exception ex)
             {
