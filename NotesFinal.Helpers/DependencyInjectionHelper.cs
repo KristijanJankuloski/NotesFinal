@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using NotesFinal.DataAccess;
 using NotesFinal.DataAccess.Repositories;
 using NotesFinal.DataAccess.Repositories.Implementations;
+using NotesFinal.Domain.Models;
 using NotesFinal.Services.Implementations;
 using NotesFinal.Services.Interfaces;
 using System.Text;
@@ -17,6 +18,8 @@ namespace NotesFinal.Helpers
         public static void InjectDbContext(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<NotesDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddTransient<IRepository<Note>>(x => new AdonetRepository(connectionString));
+            services.AddTransient<DapperRepository>(x => new DapperRepository(connectionString));
         }
 
         public static void InjectRepositories(this IServiceCollection services)

@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NotesFinal.DataAccess.Repositories;
+using NotesFinal.Domain.Enums;
+using NotesFinal.Domain.Models;
 using NotesFinal.DTOs.NoteDTOs;
 using NotesFinal.Helpers;
 using NotesFinal.Services.Interfaces;
@@ -11,6 +14,7 @@ namespace NotesFinal.API.Controllers
     public class NotesController : ControllerBase
     {
         private readonly INoteService _noteService;
+        private readonly IRepository<Note> _adoRepository;
         public NotesController(INoteService noteService)
         {
             _noteService = noteService;
